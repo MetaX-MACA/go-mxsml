@@ -899,3 +899,25 @@ func (m *MxSmlWrapper) mxSmlGetOpMode() (uint32, MxSmlReturn) {
 	ret := mxSmlGetOpMode(&mode)
 	return mode, ret
 }
+
+func (m *MxSmlWrapper) mxSmlEventSetCreate() (MxSmlEventSet, MxSmlReturn) {
+	var eventSet MxSmlEventSet
+	ret := mxSmlEventSetCreate(&eventSet)
+	return eventSet, ret
+}
+
+func (m *MxSmlWrapper) mxSmlDeviceRegisterEvents(deviceId uint32, eventTypes uint64, eventSet MxSmlEventSet) (MxSmlReturn) {
+	ret := mxSmlDeviceRegisterEvents(deviceId, eventTypes, eventSet)
+	return ret
+}
+
+func (m *MxSmlWrapper) mxSmlEventSetWait(eventSet MxSmlEventSet) (MxSmlEvent, MxSmlReturn) {
+	var eventData MxSmlEvent
+	ret := mxSmlEventSetWait(eventSet, &eventData)
+	return eventData, ret
+}
+
+func (m *MxSmlWrapper) mxSmlEventSetFree(eventSet MxSmlEventSet) (MxSmlReturn) {
+	ret := mxSmlEventSetFree(eventSet)
+	return ret
+}
