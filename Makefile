@@ -18,8 +18,14 @@ demo:
 
 .PHONY: gen
 gen:
+	go clean -cache
+	cp $(GEN_SML_DIR)/MxSml.h $(GEN_SML_DIR)/MxSml.h.tmp
+	sed -i 's/typedef struct mxSmlEventSetImpl_t\* mxSmlEventSet_t;/typedef struct MxSmlEventSet* mxSmlEventSet_t;/' $(GEN_SML_DIR)/MxSml.h.tmp
+	sed -i 's/typedef struct MxSmlEventSet\* mxSmlEventSet_t;/typedef struct { struct MxSmlEventSet* handle; } mxSmlEventSet_t;/' $(GEN_SML_DIR)/MxSml.h.tmp
+
 	c-for-go -out $(PKG_DIR) $(GEN_SML_DIR)/MxSml.yaml
-	cp $(GEN_SML_DIR)/MxSml.h $(PKG_DIR)/mxsml/
+
+	cp $(GEN_SML_DIR)/MxSml.h.tmp $(PKG_DIR)/mxsml/MxSml.h
 	cp $(GEN_SML_DIR)/MxSmlMcm.h $(PKG_DIR)/mxsml/
 	cd $(PKG_DIR)/mxsml; \
 		go tool cgo -godefs types.go > types_gen.go; \
@@ -32,6 +38,13 @@ gen:
 	 $(PKG_DIR)/mxsml/mxsml.go
 	sed -i -e 's|mxsml/MxSml\.h:[0-9]\+|MxSml\.h|g' \
 	 $(PKG_DIR)/mxsml/const.go
+
+	sed -i -e 's|mxsml/MxSml\.h\.tmp:[0-9]\+|MxSml\.h|g' \
+	 $(PKG_DIR)/mxsml/mxsml.go
+	sed -i -e 's|mxsml/MxSml\.h\.tmp:[0-9]\+|MxSml\.h|g' \
+	 $(PKG_DIR)/mxsml/const.go
+
+	rm $(GEN_SML_DIR)/MxSml.h.tmp
 
 .PHONY: gen-extension
 gen-extension:

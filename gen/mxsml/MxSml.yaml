@@ -56,7 +56,7 @@ GENERATOR:
   FlagGroups:
     - {name: "LDFLAGS", traits: ["linux"], flags: ["-Wl,--export-dynamic","-Wl,--unresolved-symbols=ignore-in-object-files"]}
 PARSER:
-  SourcesPaths: ["MxSml.h", "MxSmlMcm.h"]
+  SourcesPaths: ["MxSml.h.tmp", "MxSmlMcm.h"]
 TRANSLATOR:
   ConstRules:
     defines: eval
@@ -69,7 +69,7 @@ TRANSLATOR:
   Rules:
     const:
       - {action: accept, from: "^(MXSML_|DEVICE_|RAS_|EEPROM_|VIRTUAL_|PROCESS_|MAX_|MIN_|\
-        BOARD_|METAX_|VBIOS_|VERSION_|CHIP_|OPTICAL_|EVENT_)"}
+        BOARD_|METAX_|VBIOS_|VERSION_|CHIP_|OPTICAL_|EVENT_|mxSml)"}
       - {action: replace, from: "^DEVICE_", to: "MXSML_DEVICE_"}
       - {action: replace, from: "^RAS_", to: "MXSML_RAS_"}
       - {action: replace, from: "^EEPROM_", to: "MXSML_EEPROM_"}
@@ -84,6 +84,7 @@ TRANSLATOR:
       - {action: replace, from: "^CHIP_", to: "MXSML_CHIP_"}
       - {action: replace, from: "^OPTICAL_", to: "MXSML_OPTICAL_"}
       - {action: replace, from: "^EVENT_", to: "MXSML_EVENT_"}
+      - {action: replace, from: "^mxSml", to: "MXSML_"}
       - {transform: export}
     type:
       - {action: accept, from: "^mxSml"}

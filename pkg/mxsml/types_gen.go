@@ -291,7 +291,9 @@ type MxSmlEthThroughput struct {
 	Tx int32
 }
 
-type MxSmlEventSet *_Ctype_struct_mxSmlEventSetImpl_t
+type MxSmlEventSet struct {
+	Handle *_Ctype_struct_MxSmlEventSet
+}
 
 type MxSmlEvent struct {
 	DeviceId  int32

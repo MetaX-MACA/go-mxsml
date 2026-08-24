@@ -2874,7 +2874,7 @@ mxSmlReturn_t DECLDIR mxSmlGetEthThroughput(unsigned int deviceId, mxSmlEthThrou
 
 #define mxSmlEventTypeEid 0x0000000000000001LL  //! Event that eid occurred
 
-typedef struct mxSmlEventSetImpl_t* mxSmlEventSet_t;
+typedef struct { struct MxSmlEventSet* handle; } mxSmlEventSet_t;
 
 /**
  * @brief create an empty set of events, event set should be freed by mxSmlEventSetFree

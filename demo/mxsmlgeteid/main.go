@@ -3,8 +3,8 @@ package main
 
 import (
 	"fmt"
-	"sync"
 	"log"
+	"sync"
 
 	"github.com/MetaX-MACA/go-mxsml/pkg/mxsml"
 	"github.com/MetaX-MACA/go-mxsml/pkg/utils"
@@ -48,7 +48,7 @@ func getDeviceEid(id uint32) {
 		fmt.Printf("create event set failed: %s\n", mxsml.MxSmlGetErrorString(ret))
 	}
 
-	ret = mxsml.MxSmlDeviceRegisterEvents(id, mxsml.MXSML_mxSmlEventTypeEid, eventSet)
+	ret = mxsml.MxSmlDeviceRegisterEvents(id, uint64(mxsml.MXSML_EventTypeEid), eventSet)
 	if ret != mxsml.MXSML_Success {
 		fmt.Printf("register event set failed: %s\n", mxsml.MxSmlGetErrorString(ret))
 	}
@@ -58,7 +58,7 @@ func getDeviceEid(id uint32) {
 		fmt.Printf("wait event set failed: %s\n", mxsml.MxSmlGetErrorString(ret))
 	} else {
 		fmt.Printf("device id: %d, eid: 0x%x\nevent data: %s",
-					data.DeviceId, data.Type, utils.ExtractInt8ArrayValidString(data.EventData[:]))
+			data.DeviceId, data.Type, utils.ExtractInt8ArrayValidString(data.EventData[:]))
 	}
 
 	ret = mxsml.MxSmlEventSetFree(eventSet)
