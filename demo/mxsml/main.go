@@ -510,6 +510,92 @@ func getDeviceStats(id uint32) {
 	} else {
 		fmt.Printf("metaxlink topo of device %d: %+v\n", id, linkTopo)
 	}
+
+	limit, ret := mxsml.MxSmlGetBoardPowerDefaultLimit(id)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get board power default limit failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("board power default limit: %d\n", limit)
+	}
+
+	minLimit, maxLimit, ret := mxsml.MxSmlGetBoardPowerLimitConstraints(id)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get board power limit constraints failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("board power limit constraints: min=%d, max=%d\n", minLimit, maxLimit)
+	}
+
+	clockMHz, ret := mxsml.MxSmlGetClockInfo(id, mxsml.MXSML_Clock_Type_Core)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get core clock info failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("core clock info: %d MHz\n", clockMHz)
+	}
+
+	throttleOverVoltage, ret := mxsml.MxSmlGetClocksThrottleDuration(id, mxsml.MXSML_CLK_THROTTLE_OVER_VOLTAGE)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get clocks throttle duration failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("clocks throttle duration (over voltage): %d\n", throttleOverVoltage)
+	}
+
+	activeRatio, ret := mxsml.MxSmlGetDeviceActiveRatio(id)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get device active ratio failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("device active ratio: %d\n", activeRatio)
+	}
+
+	fmt.Printf("board id: %d\n", mxsml.MxSmlGetDeviceBoardId(id))
+
+	throughput, ret := mxsml.MxSmlGetEthThroughput(id)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get eth throughput failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("eth throughput: %d\n", throughput)
+	}
+
+	rpm, pwm, ret := mxsml.MxSmlGetFanSpeedInfo(id)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get fan speed info failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("fan speed info: rpm=%d, pwm=%d\n", rpm, pwm)
+	}
+
+	trafficStats, ret := mxsml.MxSmlGetMetaXLinkTrafficStat(id, mxsml.MXSML_MetaXLink_Input)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get metaxlink traffic stat failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("metaxlink traffic stat of device: %+v\n", trafficStats)
+	}
+
+	omPower, ret := mxsml.MxSmlGetOpticalModulePower(id)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get optical module power failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("optical module power: %+v\n", omPower)
+	}
+
+	threshold, ret := mxsml.MxSmlGetTemperatureThresholdInfo(id)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get temperature threshold info failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("temperature threshold info: %+v\n", threshold)
+	}
+
+	temp, ret := mxsml.MxSmlGetTemperatureV(id)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get temperature v failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("temperature v: %+v\n", temp)
+	}
+
+	energy, ret := mxsml.MxSmlGetTotalEnergyConsumption(id)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get total energy consumption failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("total energy consumption: %d\n", energy)
+	}
 }
 
 func main() {
@@ -538,6 +624,13 @@ func main() {
 		}
 	}
 
+	pfCount, startIndex, ret := mxsml.MxSmlGetPfDeviceCount_v2()
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get pf device count v2 failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("get pf device count v2: %d, start index: %d\n", pfCount, startIndex)
+	}
+
 	limitedDevices, ret := mxsml.MxSmlGetAllLimitedDevices()
 	if ret == mxsml.MXSML_Success && limitedDevices.Number > 0 {
 		fmt.Printf("get limited devices: %+v\n", limitedDevices)
@@ -560,8 +653,7 @@ func main() {
 
 	getProcessInfo(count)
 
-	var i uint32 = 0
-	for ; i < count; i++ {
+	for i := range count {
 		deviceInfo, ret := mxsml.MxSmlGetDeviceInfo(i)
 		if ret != mxsml.MXSML_Success {
 			log.Fatalf("%v\n", mxsml.MxSmlGetErrorString(ret))
@@ -620,6 +712,23 @@ func main() {
 				mxsml.MxSmlSetOpMode(0)
 			}
 		}
+	}
+
+	localUuid, remoteUuids, ret := mxsml.MxSmlGetLocalAndMultipleRemoteUuid()
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get local and multiple remote uuid failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("local uuid: %s\n", localUuid)
+		for _, remoteUuid := range remoteUuids {
+			fmt.Printf("remote uuid: %s\n", remoteUuid)
+		}
+	}
+
+	localUuid, remoteUuid, ret := mxsml.MxSmlGetLocalAndRemoteUuid()
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get local and remote uuid failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("local uuid: %s, remote uuid: %s\n", localUuid, remoteUuid)
 	}
 }
 
@@ -777,6 +886,27 @@ func getDeviceDieStats(deviceId, dieId uint32) {
 		fmt.Printf("get die total ecc errors failed: %s\n", mxsml.MxSmlGetErrorString(ret))
 	} else {
 		fmt.Printf("die total ecc errors: %+v\n", eccErrors)
+	}
+
+	clockMHz, ret := mxsml.MxSmlGetDieClockInfo(deviceId, dieId, mxsml.MXSML_Clock_Type_Core)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get die core clock info failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("die core clock info: %d MHz\n", clockMHz)
+	}
+
+	ratio, ret := mxsml.MxSmlGetDieActiveRatio(deviceId, dieId)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get die active ratio failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("die active ratio: %d\n", ratio)
+	}
+
+	duration, ret := mxsml.MxSmlGetDieClocksThrottleDuration(deviceId, dieId, mxsml.MXSML_CLK_THROTTLE_OVER_VOLTAGE)
+	if ret != mxsml.MXSML_Success {
+		fmt.Printf("get die clocks throttle over voltage duration failed: %s\n", mxsml.MxSmlGetErrorString(ret))
+	} else {
+		fmt.Printf("die clocks throttle over voltage duration: %d\n", duration)
 	}
 
 	fmt.Printf("--- get stats for device %d die %d end ---\n", deviceId, dieId)

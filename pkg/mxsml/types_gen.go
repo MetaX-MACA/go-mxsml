@@ -3,6 +3,11 @@
 
 package mxsml
 
+type MxSmlVirtualDeviceIds struct {
+	Number   int32
+	DeviceId [128]int32
+}
+
 type MxSmlDeviceInfo struct {
 	DeviceId   uint32
 	Type       uint32
@@ -13,6 +18,83 @@ type MxSmlDeviceInfo struct {
 	Brand      uint32
 	Mode       uint32
 	DeviceName [32]int8
+}
+
+type MxSmlLimitedDeviceIds struct {
+	Number   int32
+	DeviceId [128]int32
+}
+
+type MxSmlDeviceUnavailableReasonInfo struct {
+	UnavailableCode   int32
+	UnavailableReason [64]int8
+}
+
+type MxSmlBoardWayElectricInfo struct {
+	Voltage uint32
+	Current uint32
+	Power   uint32
+}
+
+type MxSmlPmbusInfo struct {
+	Voltage uint32
+	Current uint32
+	Power   uint32
+}
+
+type MxSmlTemperature_v1 struct {
+	Version     uint32
+	SensorType  uint32
+	Temperature int32
+}
+
+type MxSmlTemp struct {
+	Version     uint32
+	SensorType  uint32
+	Temperature int32
+}
+
+type MxSmlTemperatureThreshold_v1 struct {
+	Version       uint32
+	XcoreSlowdown int32
+	XcoreShutdown int32
+	HbmSlowdown   int32
+	HbmShutdown   int32
+	BoardSlowdown int32
+	BoardShutdown int32
+}
+
+type MxSmlTemperatureThreshold struct {
+	Version       uint32
+	XcoreSlowdown int32
+	XcoreShutdown int32
+	HbmSlowdown   int32
+	HbmShutdown   int32
+	BoardSlowdown int32
+	BoardShutdown int32
+}
+
+type MxSmlMemoryInfo struct {
+	VisVramTotal int64
+	VisVramUse   int64
+	VramTotal    int64
+	VramUse      int64
+	XttTotal     int64
+	XttUse       int64
+}
+
+type MxSmlMxcDpmPerfLevel struct {
+	Xcore uint32
+	Mc    uint32
+	Soc   uint32
+	Dnoc  uint32
+	Vpue  uint32
+	Vpud  uint32
+	Ccx   uint32
+}
+
+type MxSmlEepromInfo struct {
+	Content [1024]int8
 }
 
 type MxSmlRasRegister struct {
@@ -49,27 +131,24 @@ type MxSmlRasErrorData_v2 struct {
 	ShowRasErrorSize int32
 }
 
-type MxSmlEepromInfo struct {
-	Content [1024]int8
-}
-
-type MxSmlMemoryInfo struct {
-	VisVramTotal int64
-	VisVramUse   int64
-	VramTotal    int64
-	VramUse      int64
-	XttTotal     int64
-	XttUse       int64
-}
-
 type MxSmlPcieInfo struct {
 	Speed float32
 	Width uint32
 }
 
+type MxSmlCodecStatus struct {
+	Encoder int32
+	Decoder int32
+}
+
 type MxSmlHbmBandWidth struct {
 	HbmBandwidthReqTotal  int32
 	HbmBandwidthRespTotal int32
+}
+
+type MxSmlPcieThroughput struct {
+	Rx int32
+	Tx int32
 }
 
 type MxSmlDmaEngineBandwidth struct {
@@ -79,14 +158,44 @@ type MxSmlDmaEngineBandwidth struct {
 	WriteRespBandwidth int32
 }
 
-type MxSmlVirtualDeviceIds struct {
-	Number   int32
-	DeviceId [128]int32
+type MxSmlSingleMxlkInfo struct {
+	Speed float32
+	Width uint32
 }
 
-type MxSmlLimitedDeviceIds struct {
-	Number   int32
-	DeviceId [128]int32
+type MxSmlMetaXLinkBandwidth struct {
+	RequestBandwidth  int32
+	ResponseBandwidth int32
+}
+
+type MxSmlMetaXLinkTrafficStat struct {
+	RequestTrafficStat  int64
+	ResponseTrafficStat int64
+}
+
+type MxSmlMetaXLinkAer struct {
+	CeAer int32
+	UeAer int32
+}
+
+type MxSmlMetaXLinkRemoteInfo struct {
+	DeviceId int32
+	BdfId    [32]int8
+}
+
+type MxSmlMetaXLinkTopo struct {
+	TopologyId uint32
+	SocketId   uint32
+	DieId      uint32
+}
+
+type MxSmlVbiosUpgradeArg struct {
+	TimeLimit    uint32
+	VbiosBinPath [151]int8
+	ForceUpgrade int32
+	Ret          uint32
+	PfBar0Size   int32
+	VfBar0Size   int32
 }
 
 type MxSmlProcessGpuInfo struct {
@@ -132,96 +241,6 @@ type MxSmlProcessInfo_v3 struct {
 	ProcessGpuInfo [64]MxSmlProcessGpuInfo_v3
 }
 
-type MxSmlPmbusInfo struct {
-	Voltage uint32
-	Current uint32
-	Power   uint32
-}
-
-type MxSmlBoardWayElectricInfo struct {
-	Voltage uint32
-	Current uint32
-	Power   uint32
-}
-
-type MxSmlMxcDpmPerfLevel struct {
-	Xcore uint32
-	Mc    uint32
-	Soc   uint32
-	Dnoc  uint32
-	Vpue  uint32
-	Vpud  uint32
-	Ccx   uint32
-}
-
-type MxSmlVpuStatus struct {
-	Vpue0 int32
-	Vpue1 int32
-	Vpud0 int32
-}
-
-type MxSmlCodecStatus struct {
-	Encoder int32
-	Decoder int32
-}
-
-type MxSmlPcieThroughput struct {
-	Rx int32
-	Tx int32
-}
-
-type MxSmlMetaXLinkInfo struct {
-	Speed [7]float32
-	Width [7]uint32
-}
-
-type MxSmlSingleMxlkInfo struct {
-	Speed float32
-	Width uint32
-}
-
-type MxSmlMetaXLinkBandwidth struct {
-	RequestBandwidth  int32
-	ResponseBandwidth int32
-}
-
-type MxSmlMetaXLinkTrafficStat struct {
-	RequestTrafficStat  int64
-	ResponseTrafficStat int64
-}
-
-type MxSmlMetaXLinkAer struct {
-	CeAer int32
-	UeAer int32
-}
-
-type MxSmlMetaXLinkRemoteInfo struct {
-	DeviceId int32
-	BdfId    [32]int8
-}
-
-type MxSmlMetaXLinkTopo struct {
-	TopologyId uint32
-	SocketId   uint32
-	DieId      uint32
-}
-
-type MxSmlVbiosUpgradeArg struct {
-	TimeLimit    uint32
-	VbiosBinPath [151]int8
-	ForceUpgrade int32
-	Ret          uint32
-	PfBar0Size   int32
-	VfBar0Size   int32
-}
-
-type MxSmlFwLoglevel struct {
-	SmpCount uint32
-	Smp      [2]uint32
-	CcxCount uint32
-	Ccx      [4]uint32
-}
-
 type MxSmlOpticalModuleStatus struct {
 	Temperature   int32
 	Voltage       uint32
@@ -254,13 +273,6 @@ type MxSmlSgpuInfo struct {
 	Uuid                [96]int8
 }
 
-type MxSmlPciEventInfo struct {
-	BitNumber int32
-	Count     int32
-	FirstTime [20]int8
-	Name      [64]int8
-}
-
 type MxSmlSgpuAvailableQuota struct {
 	TotalVramQuota uint32
 	VramQuota      uint32
@@ -271,11 +283,6 @@ type MxSmlSgpuMemoryInfo struct {
 	Total int64
 	Used  int64
 	Free  int64
-}
-
-type MxSmlDeviceUnavailableReasonInfo struct {
-	UnavailableCode   int32
-	UnavailableReason [64]int8
 }
 
 type MxSmlEccErrorCount struct {
@@ -291,6 +298,13 @@ type MxSmlEthThroughput struct {
 	Tx int32
 }
 
+type MxSmlPciEventInfo struct {
+	BitNumber int32
+	Count     int32
+	FirstTime [20]int8
+	Name      [64]int8
+}
+
 type MxSmlEventSet struct {
 	Handle *_Ctype_struct_MxSmlEventSet
 }
@@ -299,6 +313,24 @@ type MxSmlEvent struct {
 	DeviceId  int32
 	Type      int32
 	EventData [1024]int8
+}
+
+type MxSmlVpuStatus struct {
+	Vpue0 int32
+	Vpue1 int32
+	Vpud0 int32
+}
+
+type MxSmlMetaXLinkInfo struct {
+	Speed [7]float32
+	Width [7]uint32
+}
+
+type MxSmlFwLoglevel struct {
+	SmpCount uint32
+	Smp      [2]uint32
+	CcxCount uint32
+	Ccx      [4]uint32
 }
 
 type MxSmlMcmMetaXLinkRemoteInfo struct {

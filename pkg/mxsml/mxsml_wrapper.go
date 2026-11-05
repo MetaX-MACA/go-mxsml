@@ -5,6 +5,9 @@ package mxsml
 // #include <stdint.h>
 import "C"
 import (
+	"bytes"
+	"unsafe"
+
 	"github.com/MetaX-MACA/go-mxsml/pkg/lib"
 	"github.com/MetaX-MACA/go-mxsml/pkg/utils"
 )
@@ -906,7 +909,7 @@ func (m *MxSmlWrapper) mxSmlEventSetCreate() (MxSmlEventSet, MxSmlReturn) {
 	return eventSet, ret
 }
 
-func (m *MxSmlWrapper) mxSmlDeviceRegisterEvents(deviceId uint32, eventTypes uint64, eventSet MxSmlEventSet) (MxSmlReturn) {
+func (m *MxSmlWrapper) mxSmlDeviceRegisterEvents(deviceId uint32, eventTypes uint64, eventSet MxSmlEventSet) MxSmlReturn {
 	ret := mxSmlDeviceRegisterEvents(deviceId, eventTypes, eventSet)
 	return ret
 }
@@ -917,7 +920,180 @@ func (m *MxSmlWrapper) mxSmlEventSetWait(eventSet MxSmlEventSet) (MxSmlEvent, Mx
 	return eventData, ret
 }
 
-func (m *MxSmlWrapper) mxSmlEventSetFree(eventSet MxSmlEventSet) (MxSmlReturn) {
+func (m *MxSmlWrapper) mxSmlEventSetFree(eventSet MxSmlEventSet) MxSmlReturn {
 	ret := mxSmlEventSetFree(eventSet)
 	return ret
+}
+
+func (m *MxSmlWrapper) mxSmlForceReset(deviceId uint32) MxSmlReturn {
+	return mxSmlForceReset(deviceId)
+}
+
+func (m *MxSmlWrapper) mxSmlGetBoardPowerDefaultLimit(deviceId uint32) (uint32, MxSmlReturn) {
+	var limit uint32
+	ret := mxSmlGetBoardPowerDefaultLimit(deviceId, &limit)
+	return limit, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetBoardPowerLimitConstraints(deviceId uint32) (uint32, uint32, MxSmlReturn) {
+	var minLimit, maxLimit uint32
+	ret := mxSmlGetBoardPowerLimitConstraints(deviceId, &minLimit, &maxLimit)
+	return minLimit, maxLimit, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetClockInfo(deviceId uint32, clockType MxSmlClockType) (uint32, MxSmlReturn) {
+	var clockMhz uint32
+	ret := mxSmlGetClockInfo(deviceId, clockType, &clockMhz)
+	return clockMhz, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetClocksThrottleDuration(deviceId uint32, clockThrottleType MxSmlClockThrottleType) (uint64, MxSmlReturn) {
+	var duration uint64
+	ret := mxSmlGetClocksThrottleDuration(deviceId, clockThrottleType, &duration)
+	return duration, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetDeviceActiveRatio(deviceId uint32) (int32, MxSmlReturn) {
+	var ratio int32
+	ret := mxSmlGetDeviceActiveRatio(deviceId, &ratio)
+	return ratio, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetDeviceBoardId(deviceId uint32) int32 {
+	return mxSmlGetDeviceBoardId(deviceId)
+}
+
+func (m *MxSmlWrapper) mxSmlGetEthThroughput(deviceId uint32) (MxSmlEthThroughput, MxSmlReturn) {
+	var throughput MxSmlEthThroughput
+	ret := mxSmlGetEthThroughput(deviceId, &throughput)
+	return throughput, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetFanSpeedInfo(deviceId uint32) (uint32, uint32, MxSmlReturn) {
+	var rpm, pwm uint32
+	ret := mxSmlGetFanSpeedInfo(deviceId, &rpm, &pwm)
+	return rpm, pwm, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetLocalAndMultipleRemoteUuid() (string, []string, MxSmlReturn) {
+	var maxRemoteMachines uint32 = 32
+	var maxUuidSize uint32 = 64
+	machineUuids, ret := GetMachineUUIDs(maxRemoteMachines, maxUuidSize)
+	if ret != MXSML_Success {
+		return "", nil, ret
+	}
+
+	if machineUuids == nil {
+		return "", nil, MXSML_Failure
+	}
+
+	localUuid := string(bytes.TrimRight(machineUuids.LocalUUID[:], "\x00"))
+	var remoteUuids []string
+	for _, remoteUuid := range machineUuids.RemoteUUIDs {
+		remoteUuids = append(remoteUuids, string(bytes.TrimRight(remoteUuid[:], "\x00")))
+	}
+
+	return localUuid, remoteUuids, MXSML_Success
+}
+
+func (m *MxSmlWrapper) mxSmlGetLocalAndRemoteUuid() (string, string, MxSmlReturn) {
+	var localUuid, remoteUuid [64]byte
+	var size uint32 = 64
+	ret := mxSmlGetLocalAndRemoteUuid(&localUuid[0], &remoteUuid[0], &size)
+
+	localUuidStr := string(bytes.TrimRight(localUuid[:], "\x00"))
+	remoteUuidStr := string(bytes.TrimRight(remoteUuid[:], "\x00"))
+	return localUuidStr, remoteUuidStr, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetMetaXLinkTrafficStat(deviceId uint32, linkType MxSmlMetaXLinkType) ([]MxSmlMetaXLinkTrafficStat, MxSmlReturn) {
+	var linkSize uint32 = 7
+	mxlkTrafficStat := make([]MxSmlMetaXLinkTrafficStat, linkSize)
+	ret := mxSmlGetMetaXLinkTrafficStat(deviceId, linkType, &linkSize, &mxlkTrafficStat[0])
+	if ret != MXSML_Success {
+		return nil, ret
+	}
+
+	return mxlkTrafficStat[:linkSize], ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetOpticalModulePower(deviceId uint32) ([]MxSmlOpticalModulePower, MxSmlReturn) {
+	var size uint32 = 3
+	power := make([]MxSmlOpticalModulePower, size)
+	ret := mxSmlGetOpticalModulePower(deviceId, &power[0], &size)
+	if ret != MXSML_Success {
+		return nil, ret
+	}
+
+	return power[:size], ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetPfDeviceCount_v2() (uint32, uint32, MxSmlReturn) {
+	var count, startIndex uint32
+	ret := mxSmlGetPfDeviceCount_v2(&count, &startIndex)
+	return count, startIndex, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetTemperatureThresholdInfo(deviceId uint32) (MxSmlTemperatureThreshold, MxSmlReturn) {
+	threshold := MxSmlTemperatureThreshold{
+		Version: MakeStructVersion(1, unsafe.Sizeof(MxSmlTemperatureThreshold_v1{})),
+	}
+
+	ret := mxSmlGetTemperatureThresholdInfo(deviceId, (*MxSmlTemperatureThreshold)(unsafe.Pointer(&threshold)))
+	return threshold, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetTemperatureV(deviceId uint32) (MxSmlTemp, MxSmlReturn) {
+	temp := MxSmlTemp{
+		Version: MakeStructVersion(1, unsafe.Sizeof(MxSmlTemperature_v1{})),
+	}
+	ret := mxSmlGetTemperatureV(deviceId, &temp)
+	return temp, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetTotalEnergyConsumption(deviceId uint32) (uint64, MxSmlReturn) {
+	var energy uint64
+	ret := mxSmlGetTotalEnergyConsumption(deviceId, &energy)
+	return energy, ret
+}
+
+func (m *MxSmlWrapper) mxSmlSetBoardPowerLimit(deviceId uint32, limit uint32) MxSmlReturn {
+	return mxSmlSetBoardPowerLimit(deviceId, limit)
+}
+
+func (m *MxSmlWrapper) mxSmlSetMetaXLinkState(deviceId uint32, state uint32) MxSmlReturn {
+	return mxSmlSetMetaXLinkState(deviceId, state)
+}
+
+func (m *MxSmlWrapper) mxSmlTrainMetaXLink() MxSmlReturn {
+	return mxSmlTrainMetaXLink()
+}
+
+func (m *MxSmlWrapper) mxSmlGetGlobalAddress(deviceId uint32) (uint64, uint64, MxSmlReturn) {
+	var addressBase, addressSize uint64
+	ret := mxSmlGetGlobalAddress(deviceId, &addressBase, &addressSize)
+	return addressBase, addressSize, ret
+}
+
+func (m *MxSmlWrapper) mxSmlCreateSuperpodConfigFile(superpodId uint32, serverId uint32, serverIp string) MxSmlReturn {
+	return mxSmlCreateSuperpodConfigFile(superpodId, serverId, serverIp)
+}
+
+func (m *MxSmlWrapper) mxSmlGetDieClockInfo(deviceId, dieId uint32, clockType MxSmlClockType) (uint32, MxSmlReturn) {
+	var clockMHz uint32
+	ret := mxSmlGetDieClockInfo(deviceId, dieId, clockType, &clockMHz)
+	return clockMHz, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetDieActiveRatio(deviceId, dieId uint32) (int32, MxSmlReturn) {
+	var ratio int32
+	ret := mxSmlGetDieActiveRatio(deviceId, dieId, &ratio)
+	return ratio, ret
+}
+
+func (m *MxSmlWrapper) mxSmlGetDieClocksThrottleDuration(deviceId, dieId uint32,
+	clockThrottleType MxSmlClockThrottleType) (uint64, MxSmlReturn) {
+	var duration uint64
+	ret := mxSmlGetDieClocksThrottleDuration(deviceId, dieId, clockThrottleType, &duration)
+	return duration, ret
 }

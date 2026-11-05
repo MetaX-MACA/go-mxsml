@@ -1,4 +1,3 @@
-/*** MXSML VERSION: 2.3.1 ***/
 /**
  * Copyright © 2024 MetaX Integrated Circuits (Shanghai) Co., Ltd. All Rights Reserved.
  *
@@ -152,6 +151,23 @@ mxSmlReturn_t DECLDIR mxSmlGetDieClocks(
         unsigned int deviceId, unsigned int dieId, mxSmlClockIp_t clockIp, unsigned int* clocksSize, unsigned int* clocksMhz);
 
 /**
+ * @brief Get clock frequency specified by the clock type
+ *
+ * @param[in]  deviceId : the device index
+ * @param[in]  dieId : the die index
+ * @param[in]  clockType : identify which clock domain to query
+ * @param[out] clockMhz : return the clock frequency information in MHz
+ *
+ * @retval MXSML_Success                call was successful
+ * @retval MXSML_InvalidDeviceId        deviceId is out of range
+ * @retval MXSML_InvalidDieId           dieId is out of range
+ * @retval MXSML_OperationNotSupport    the operation is not support on target device
+ * @retval MXSML_InvalidInput           clocksMhz is nullptr or clockType is not valid for target device
+ * @retval MXSML_SysfsError             read sysfs file failure
+ */
+mxSmlReturn_t DECLDIR mxSmlGetDieClockInfo(unsigned int deviceId, unsigned int dieId, mxSmlClockType_t clockType, unsigned int* clockMhz);
+
+/**
  * @brief Get die chip serial
  *
  * @param[in]  deviceId : the device indexs
@@ -184,6 +200,22 @@ mxSmlReturn_t DECLDIR mxSmlGetDieChipSerial(unsigned int deviceId, unsigned int 
  * @retval MXSML_InvalidDieId       dieId is out of range
  */
 mxSmlReturn_t DECLDIR mxSmlGetDieIpUsage(unsigned int deviceId, unsigned int dieId, mxSmlUsageIp_t ip, int* usage);
+
+/**
+ * @brief Get die active time ratio
+ *
+ * @param[in] deviceId : the device index
+ * @param[in] dieId : the die index
+ * @param[out] ratio : return die active time ratio
+ *
+ * @retval MXSML_Success                call was successful
+ * @retval MXSML_InvalidDeviceId        deviceId is out of range
+ * @retval MXSML_InvalidInput           ratio is null
+ * @retval MXSML_OperationNotSupport    the operation is not support on target device
+ * @retval MXSML_SysfsError             read sysfs file failure
+ * @retval MXSML_InvalidDieId           dieId is out of range
+ */
+mxSmlReturn_t DECLDIR mxSmlGetDieActiveRatio(unsigned int deviceId, unsigned int dieId, int* ratio);
 
 /**
  * @brief Get die xcore ap usage toggle
@@ -501,6 +533,88 @@ mxSmlReturn_t DECLDIR mxSmlGetDieTotalEccErrors(unsigned int deviceId, unsigned 
  * @see mxsmlClocksThrottleReasons
  */
 mxSmlReturn_t DECLDIR mxSmlGetDieCurrentClocksThrottleReason(unsigned int deviceId, unsigned int dieId, unsigned long long* clocksThrottleReasons);
+
+/**
+ * @brief Get die hbm bandwidth utilization rate
+ *
+ * @param[in] deviceId : the device index
+ * @param[in] dieId : the die index
+ * @param[out] utilization : return hbm bandwidth utilization rate(%)
+ *
+ * @retval MXSML_Success                call was successful
+ * @retval MXSML_InvalidDeviceId        deviceId is out of range
+ * @retval MXSML_InvalidDieId           dieId is out of range
+ * @retval MXSML_OperationNotSupport    the operation is not support on target device
+ * @retval MXSML_InvalidInput           utilization is null
+ * @retval MXSML_SysfsError             read sysfs file failure
+ */
+mxSmlReturn_t DECLDIR mxSmlGetDieHbmBandwidthUtilization(unsigned int deviceId, unsigned int dieId, unsigned int* utilization);
+
+/**
+ * @brief Get die driver reserved memory
+ *
+ * @param[in] deviceId : the device index
+ * @param[in] dieId : the die index
+ * @param[out] reservedMemory: return driver reserved memory
+ *
+ * @retval MXSML_Success                call was successful
+ * @retval MXSML_InvalidDeviceId        deviceId is out of range
+ * @retval MXSML_InvalidDieId           dieId is out of range
+ * @retval MXSML_InvalidInput           reservedMemory is null
+ * @retval MXSML_OperationNotSupport    the operation is not support on target device
+ * @retval MXSML_SysfsError             parse sysfs file failure
+ */
+mxSmlReturn_t DECLDIR mxSmlGetDieDriverReservedMemory(unsigned int deviceId, unsigned int dieId, unsigned int* reservedMemory);
+
+/**
+ * @brief Get die xcore ap mma usage toggle
+ *
+ * @param[in] deviceId : the device index
+ * @param[in] dieId : the die index
+ * @param[out] apUsageToggle : the xcore ap mma usage toggle: 0(disable) 1(enable)
+ *
+ * @retval MXSML_Success                call was successful
+ * @retval MXSML_InvalidDeviceId        deviceId is out of range
+ * @retval MXSML_InvalidInput           mmaUsageToggle is null
+ * @retval MXSML_OperationNotSupport    the operation is not support on target device
+ * @retval MXSML_SysfsError             open sysfs file failure
+ * @retval MXSML_InvalidDieId           dieId is out of range
+ */
+mxSmlReturn_t DECLDIR mxSmlGetDieMmaUsageToggle(unsigned int deviceId, unsigned int dieId, unsigned int* mmaUsageToggle);
+
+/**
+ * @brief Set die xcore ap mma usage toggle
+ *
+ * @param[in] deviceId : the device index
+ * @param[in] dieId : the die index
+ * @param[in] toggle : the state to be set: 0(disable) 1(enable)
+ *
+ * @retval MXSML_Success                call was successful
+ * @retval MXSML_InvalidDeviceId        deviceId is out of range
+ * @retval MXSML_InvalidDieId           dieId is out of range
+ * @retval MXSML_OperationNotSupport    the operation is not support on target device
+ * @retval MXSML_SysfsError             open sysfs file failure
+ * @retval MXSML_SysfsWriteError        write sysfs file failure
+ */
+mxSmlReturn_t DECLDIR mxSmlSetDieMmaUsageToggle(unsigned int deviceId, unsigned int dieId, int toggle);
+
+/**
+ * @brief Get die clocks throttle duration, unit: us
+ *
+ * @param[in] deviceId : the device index
+ * @param[in] dieId : the die index
+ * @param[in] type : the throttle type
+ * @param[out] duration : return the clocks throttle duration
+ *
+ * @retval MXSML_Success                call was successful
+ * @retval MXSML_OperationNotSupport    the operation is not support on target device
+ * @retval MXSML_InvalidDeviceId        deviceId is out of range
+ * @retval MXSML_InvalidDieId           dieId is out of range
+ * @retval MXSML_InvalidInput           type is invalid or duration is null
+ * @retval MXSML_SysfsError             open sysfs file failure
+ * @retval MXSML_SysfsWriteError        write sysfs file failure
+*/
+mxSmlReturn_t DECLDIR mxSmlGetDieClocksThrottleDuration(unsigned int deviceId, unsigned int dieId, mxSmlClockThrottleType_t type, unsigned long* duration);
 
 #ifdef __cplusplus
 }

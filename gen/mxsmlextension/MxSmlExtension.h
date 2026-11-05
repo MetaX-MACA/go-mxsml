@@ -1,4 +1,3 @@
-/*** MXSML VERSION: 2.3.1 ***/
 /**
  * Copyright © 2022 MetaX Integrated Circuits (Shanghai) Co., Ltd. All Rights Reserved.
  *
@@ -841,7 +840,7 @@ mxSmlExReturn_t DECLDIR mxSmlExDeviceGetUUID(mxsmlExDevice_t deviceHandle, char*
  * @retval MXSMLEX_SUCCESS                     call was successful
  * @retval MXSMLEX_ERROR_INVALID_ARGUMENT      deviceHandle is invalid or uuid is null or length is invalid
 */
-mxSmlExReturn_t DECLDIR mxSmlExDeviceGetHandleByUUID(char* uuid, mxsmlExDevice_t* deviceHandle);
+mxSmlExReturn_t DECLDIR mxSmlExDeviceGetHandleByUUID(const char* uuid, mxsmlExDevice_t* deviceHandle);
 
 /**
  * @brief get the current performance state for the device
@@ -1010,6 +1009,45 @@ mxSmlExReturn_t DECLDIR mxSmlExDeviceGetFieldValues(mxsmlExDevice_t deviceHandle
 mxSmlExReturn_t DECLDIR mxSmlExDeviceSetCpuAffinity(mxsmlExDevice_t deviceHandle);
 
 /**
+ * @brief Get the version of MACA driver
+ *
+ * @param[out] macaDriverVersion : return the version identifier
+ *
+ * @retval MXSMLEX_SUCCESS                      call was successful
+ * @retval MXSMLEX_ERROR_INVALID_ARGUMENT       macaDriverVersion is null
+ * @retval MXSMLEX_ERROR_LIBRARY_NOT_FOUND      load dynamic library failed
+ * @retval MXSMLEX_ERROR_UNKNOWN                unexpected error
+ */
+mxSmlExReturn_t DECLDIR mxSmlExSystemGetMacaDriverVersion(int* macaDriverVersion);
+
+typedef unsigned char mxSmlExGpuFabricState_t;
+/**
+ * @brief GPU fabric information
+ */
+typedef struct MxSmlExGpuFabricInfoV
+{
+    unsigned int cliqueId;
+    unsigned char clusterUuid;
+    unsigned int healthMask;
+    unsigned char healthASummary;
+    mxSmlExGpuFabricState_t state;
+    mxSmlExReturn_t status;
+    unsigned int version;
+} mxSmlExGpuFabricInfoV_t;
+
+/**
+ * @brief Get gpu fabric info
+ *
+ * @param[in] deviceHandle : the device handle
+ * @param[in,out] gpuFabricInfo : information about GPU fabric state
+ *
+ * @retval MXSMLEX_SUCCESS                      call was successful
+ * @retval MXSMLEX_ERROR_INVALID_ARGUMENT       deviceHandle is invalid
+ * @retval MXSMLEX_ERROR_NOT_SUPPORTED          device doesn't support gpu fabric
+ */
+mxSmlExReturn_t DECLDIR mxSmlExDeviceGetGpuFabricInfoV(mxsmlExDevice_t deviceHandle, mxSmlExGpuFabricInfoV_t* gpuFabricInfo);
+
+/**
  * Information for Sample
  */
 typedef struct MxSmlExSample
@@ -1018,6 +1056,88 @@ typedef struct MxSmlExSample
     mxSmlExValue_t sampleValue;         //!< Sample Value
 }mxSmlExSample_t;
 
+/**
+ * @brief Get board power limit, unit: mW
+ *
+ * @param[in] deviceHandle : the device handle
+ * @param[out] limit : board power limit
+ *
+ * @retval MXSMLEX_SUCCESS                     call was successful
+ * @retval MXSMLEX_ERROR_INVALID_ARGUMENT      deviceHandle is invalid
+ * @retval MXSMLEX_ERROR_UNKNOWN               unexpected error
+ * @retval MXSMLEX_ERROR_NOT_SUPPORTED         the device does not support this feature
+ */
+mxSmlExReturn_t DECLDIR mxSmlExDeviceGetBoardPowerLimit(mxsmlExDevice_t deviceHandle, unsigned int* limit);
+
+/**
+ * @brief Set board power limit, unit: mW
+ *
+ * @param[in] deviceHandle : the device handle
+ * @param[in] limit : board power limit
+ *
+ * @retval MXSMLEX_SUCCESS                     call was successful
+ * @retval MXSMLEX_ERROR_INVALID_ARGUMENT      deviceHandle is invalid
+ * @retval MXSMLEX_ERROR_UNKNOWN               unexpected error
+ * @retval MXSMLEX_ERROR_NOT_SUPPORTED         the device does not support this feature
+ */
+mxSmlExReturn_t DECLDIR mxSmlExDeviceSetBoardPowerLimit(mxsmlExDevice_t deviceHandle, unsigned int limit);
+
+/**
+ * @brief Get default board power limit, unit: mW
+ *
+ * @param[in] deviceHandle : the device handle
+ * @param[out] defaultLimit : default board power limit
+ *
+ * @retval MXSMLEX_SUCCESS                     call was successful
+ * @retval MXSMLEX_ERROR_INVALID_ARGUMENT      deviceHandle is invalid
+ * @retval MXSMLEX_ERROR_UNKNOWN               unexpected error
+ * @retval MXSMLEX_ERROR_NOT_SUPPORTED         the device does not support this feature
+ */
+mxSmlExReturn_t DECLDIR mxSmlExDeviceGetBoardPowerDefaultLimit(mxsmlExDevice_t deviceHandle, unsigned int* defaultLimit);
+
+/**
+ * @brief Get board power limit constraints, unit: mW
+ *
+ * @param[in] deviceHandle : the device handle
+ * @param[out] minLimit : minmum board power limit
+ * @param[out] maxLimit : maxmum board power limit
+ *
+ * @retval MXSMLEX_SUCCESS                     call was successful
+ * @retval MXSMLEX_ERROR_INVALID_ARGUMENT      deviceHandle is invalid
+ * @retval MXSMLEX_ERROR_UNKNOWN               unexpected error
+ * @retval MXSMLEX_ERROR_NOT_SUPPORTED         the device does not support this feature
+ */
+mxSmlExReturn_t DECLDIR mxSmlExDeviceGetBoardPowerLimitConstraints(mxsmlExDevice_t deviceHandle, unsigned int* minLimit, unsigned int* maxLimit);
+
+#define MXSMLEX_STRUCT_VERSION(data, ver) (unsigned int)(sizeof(mxSmlEx ## data ## _v ## ver ## _t) | \
+                                                      (ver << 24U))
+/**
+ * This structure holds temperature info
+ */
+typedef struct
+{
+    unsigned int version;
+    mxsmlExTemperatureSensors_t sensorType;
+    int temperature;
+} mxSmlExTemperature_v1_t;
+
+typedef mxSmlExTemperature_v1_t mxSmlExTemperature_t;
+
+#define mxSmlExTemperature_v1 MXSMLEX_STRUCT_VERSION(Temperature, 1) //!< Version macro for \a mxSmlExTemperature_v1_t
+
+/**
+ * @brief Get the current temperature readings (in degrees C) for the given device.
+ *
+ * @param[in] deviceHandle : the device handle
+ * @param[out] temperature : Structure specifying the sensor type (input) and retrieved
+ *                           temperature value (output).
+ *
+ * @retval MXSMLEX_SUCCESS                     call was successful
+ * @retval MXSMLEX_ERROR_INVALID_ARGUMENT      deviceHandle or temperature(version,sensorType)is invalid
+ * @retval MXSMLEX_ERROR_UNKNOWN               unexpected error
+ * @retval MXSMLEX_ERROR_NOT_SUPPORTED         the device does not support this feature
+ */
+mxSmlExReturn_t DECLDIR mxSmlExGetTemperatureV(mxsmlExDevice_t deviceHandle, mxSmlExTemperature_t* temperature);
 #ifdef __cplusplus
 }
 #endif

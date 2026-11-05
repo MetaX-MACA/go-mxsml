@@ -57,7 +57,31 @@ type MxSmlExFieldValue struct {
 	Pad_cgo_0     [4]byte
 }
 
+type MxSmlExGpuFabricState byte
+
+type MxSmlExGpuFabricInfoV struct {
+	CliqueId       uint32
+	ClusterUuid    uint8
+	HealthMask     uint32
+	HealthASummary uint8
+	State          uint8
+	Status         uint32
+	Version        uint32
+}
+
 type MxSmlExSample struct {
 	TimeStamp   uint64
 	SampleValue [8]byte
+}
+
+type MxSmlExTemperature_v1 struct {
+	Version     uint32
+	SensorType  uint32
+	Temperature int32
+}
+
+type MxSmlExTemperature struct {
+	Version     uint32
+	SensorType  uint32
+	Temperature int32
 }

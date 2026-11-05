@@ -253,8 +253,7 @@ func (n *ExtensionWrapper) DeviceGetHandleByUUID(uuid string) (Device, Return) {
 	}
 
 	var device MxSmlExDevice
-	uuidBytes := []byte(uuid)
-	ret := mxSmlExDeviceGetHandleByUUID(&uuidBytes[0], &device)
+	ret := mxSmlExDeviceGetHandleByUUID(uuid, &device)
 	return device, ret
 }
 
