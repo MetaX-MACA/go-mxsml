@@ -1,7 +1,7 @@
 package mxsml
 
 /*
-#cgo CFLAGS: -I.
+#cgo CFLAGS: -I. -Wno-deprecated-declarations
 #include "wrapper_helper.h"
 #include <stdlib.h>
 */
