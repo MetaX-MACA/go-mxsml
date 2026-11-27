@@ -183,6 +183,11 @@ type MxSmlMetaXLinkRemoteInfo struct {
 	BdfId    [32]int8
 }
 
+type MxSmlMxlkTrainResult struct {
+	Errcode int32
+	Message [1024]int8
+}
+
 type MxSmlMetaXLinkTopo struct {
 	TopologyId uint32
 	SocketId   uint32

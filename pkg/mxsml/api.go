@@ -121,6 +121,9 @@ var (
 	MxSmlTrainMetaXLink                 = mxsmlWrapper.mxSmlTrainMetaXLink
 	MxSmlGetGlobalAddress               = mxsmlWrapper.mxSmlGetGlobalAddress
 	MxSmlCreateSuperpodConfigFile       = mxsmlWrapper.mxSmlCreateSuperpodConfigFile
+	MxSmlEnableMetaXLinkPort            = mxsmlWrapper.mxSmlEnableMetaXLinkPort
+	MxSmlDisableMetaXLinkPort           = mxsmlWrapper.mxSmlDisableMetaXLinkPort
+	MxSmlGetMetaXLinkPortEnableStates   = mxsmlWrapper.mxSmlGetMetaXLinkPortEnableStates
 )
 
 var (

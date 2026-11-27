@@ -6,6 +6,7 @@ package mxsml
 import "C"
 import (
 	"bytes"
+	"errors"
 	"unsafe"
 
 	"github.com/MetaX-MACA/go-mxsml/pkg/lib"
@@ -1065,8 +1066,20 @@ func (m *MxSmlWrapper) mxSmlSetMetaXLinkState(deviceId uint32, state uint32) MxS
 	return mxSmlSetMetaXLinkState(deviceId, state)
 }
 
-func (m *MxSmlWrapper) mxSmlTrainMetaXLink() MxSmlReturn {
-	return mxSmlTrainMetaXLink()
+func (m *MxSmlWrapper) mxSmlTrainMetaXLink() error {
+	result := MxSmlMxlkTrainResult{}
+	ret := mxSmlTrainMetaXLink(&result)
+	if ret != MXSML_Success {
+		// the error code was not updated, the failure occurred before training
+		if result.Errcode == 0 {
+			return errors.New(MxSmlGetErrorString(ret))
+		}
+
+		// the error code was updated, return training result
+		return errors.New(utils.ExtractInt8ArrayValidString(result.Message[:]))
+	}
+
+	return nil
 }
 
 func (m *MxSmlWrapper) mxSmlGetGlobalAddress(deviceId uint32) (uint64, uint64, MxSmlReturn) {
@@ -1077,6 +1090,20 @@ func (m *MxSmlWrapper) mxSmlGetGlobalAddress(deviceId uint32) (uint64, uint64, M
 
 func (m *MxSmlWrapper) mxSmlCreateSuperpodConfigFile(superpodId uint32, serverId uint32, serverIp string) MxSmlReturn {
 	return mxSmlCreateSuperpodConfigFile(superpodId, serverId, serverIp)
+}
+
+func (m *MxSmlWrapper) mxSmlEnableMetaXLinkPort(deviceId uint32, portId uint32) MxSmlReturn {
+	return mxSmlEnableMetaXLinkPort(deviceId, portId)
+}
+
+func (m *MxSmlWrapper) mxSmlDisableMetaXLinkPort(deviceId uint32, portId uint32) MxSmlReturn {
+	return mxSmlDisableMetaXLinkPort(deviceId, portId)
+}
+
+func (m *MxSmlWrapper) mxSmlGetMetaXLinkPortEnableStates(deviceId uint32) (int32, MxSmlReturn) {
+	var state int32
+	ret := mxSmlGetMetaXLinkPortEnableStates(deviceId, &state)
+	return state, ret
 }
 
 func (m *MxSmlWrapper) mxSmlGetDieClockInfo(deviceId, dieId uint32, clockType MxSmlClockType) (uint32, MxSmlReturn) {

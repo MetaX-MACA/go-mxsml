@@ -1423,16 +1423,73 @@ mxSmlReturn_t DECLDIR mxSmlGetMetaXLinkPortState(unsigned int deviceId, mxSmlMxl
 */
 mxSmlReturn_t DECLDIR mxSmlSetMetaXLinkState(unsigned int deviceId, unsigned int mxlkState);
 
+#define METAXLINK_TRAIN_RESULT_MESSAGE  1024                //!< Maximum length of metaXLink train result message
+
+/**
+ * @brief the metaXLink train result
+*/
+typedef struct MxSmlMxlkTrainResult {
+    int errcode;
+    char message[METAXLINK_TRAIN_RESULT_MESSAGE];
+} mxSmlMxlkTrainResult_t;
+
 /**
  * @brief Train metaXLink for all devices on the node
  *
+ * @param[out] result : the MetaXLink train result composed of an error code and error message
+ *
  * @retval MXSML_Success                call was successful
  * @retval MXSML_NoDevice               no device was discovered
+ * @retval MXSML_InvalidInput           the MetaXLink train result is null
  * @retval MXSML_OperationNotSupport    the operation is not support on target device
  * @retval MXSML_PermissionDenied       the operations require root access to run
+ * @retval MXSML_SysfsWriteError        write sysfs file failure
+ */
+mxSmlReturn_t DECLDIR mxSmlTrainMetaXLink(mxSmlMxlkTrainResult_t* result);
+
+/**
+ * @brief Enable MetaXLink port
+ *
+ * @param[in] deviceId : the device index
+ * @param[in] portId : the index of MetaXLink port
+ *
+ * @retval MXSML_Success                call was successful
+ * @retval MXSML_InvalidDeviceId        deviceId is out of range
+ * @retval MXSML_InvalidInput           the MetaXLink port id is out of range
+ * @retval MXSML_OperationNotSupport    the operation is not support on target device
+ * @retval MXSML_PermissionDenied       the operations require root access to run
+ * @retval MXSML_SysfsWriteError        write sysfs file failure
+ */
+mxSmlReturn_t DECLDIR mxSmlEnableMetaXLinkPort(unsigned int deviceId, unsigned int portId);
+
+/**
+ * @brief Disable MetaXLink port
+ *
+ * @param[in] deviceId : the device index
+ * @param[in] portId : the index of MetaXLink port
+ *
+ * @retval MXSML_Success                call was successful
+ * @retval MXSML_InvalidDeviceId        deviceId is out of range
+ * @retval MXSML_InvalidInput           the MetaXLink port id is out of range
+ * @retval MXSML_OperationNotSupport    the operation is not support on target device
+ * @retval MXSML_PermissionDenied       the operations require root access to run
+ * @retval MXSML_SysfsWriteError        write sysfs file failure
+ */
+mxSmlReturn_t DECLDIR mxSmlDisableMetaXLinkPort(unsigned int deviceId, unsigned int portId);
+
+/**
+ * @brief Get MetaXLink port enable states
+ *
+ * @param[in] deviceId : the device index
+ * @param[out] states : the MetaXLink port enable states as a bitmap: bit 0 = port 1, bit 1 = port 2, etc.
+ *
+ * @retval MXSML_Success                call was successful
+ * @retval MXSML_InvalidDeviceId        deviceId is out of range
+ * @retval MXSML_InvalidInput           the MetaXLink port states is null
+ * @retval MXSML_OperationNotSupport    the operation is not support on target device
  * @retval MXSML_SysfsError             open sysfs file failure
  */
-mxSmlReturn_t DECLDIR mxSmlTrainMetaXLink();
+mxSmlReturn_t DECLDIR mxSmlGetMetaXLinkPortEnableStates(unsigned int deviceId, int* states);
 
 /**
  * @brief This structure holds device MetaXLink topology info
@@ -1827,6 +1884,30 @@ mxSmlReturn_t DECLDIR mxSmlSetCpuAffinity(unsigned int deviceId);
  *
  */
 mxSmlReturn_t DECLDIR mxSmlClearCpuAffinity(unsigned int deviceId);
+
+/**
+ * @brief Sets host memory allocations on the calling thread and device
+ *
+ * @param[in] deviceId : the target device index
+ *
+ * @retval MXSML_Success            call was successful
+ * @retval MXSML_InvalidDeviceId    deviceId is out of range
+ * @retval MXSML_Failure            node affinity is empty or set_mempolicy failed
+ *
+ */
+mxSmlReturn_t DECLDIR mxSmlSetMemoryAffinity(unsigned int deviceId);
+
+/**
+ * @brief Restores the default NUMA memory policy on the calling thread
+ *
+ * @param[in] deviceId : the target device index
+ *
+ * @retval MXSML_Success            call was successful
+ * @retval MXSML_InvalidDeviceId    deviceId is out of range
+ * @retval MXSML_Failure            set_mempolicy failed
+ *
+ */
+mxSmlReturn_t DECLDIR mxSmlClearMemoryAffinity(unsigned int deviceId);
 
 /**
  * @brief Retrieves an array of unsigned ints (sized to nodeSetSize) of bitmasks with
@@ -2530,10 +2611,17 @@ mxSmlReturn_t DECLDIR mxSmlCreateSgpu(unsigned int deviceId, unsigned int memory
 */
 mxSmlReturn_t DECLDIR mxSmlRemoveSgpu(unsigned int deviceId, unsigned int sgpuId);
 
-#define MAX_SGPU_COUNT 16               //!< Guaranteed maximum sgpu count on one device
+#define MAX_SGPU_COUNT 16               //!< @deprecated, use mxSmlGetMaxSgpuCount instead
 
 /**
- * @brief Get number of available sgpus in the device
+ * @brief Get maximum number of sGPUs on a single device
+ *
+ * @return the maximum number of sGPUs on a single device
+ */
+unsigned int DECLDIR mxSmlGetMaxSgpuCount();
+
+/**
+ * @brief Get number of available sgpus on the device
  *
  * @details if deviceId is out of range or any error occured, return 0
  *
